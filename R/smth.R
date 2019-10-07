@@ -3,7 +3,7 @@
 
 alfa_star <- 1.1678
 sigma_star <- 3.3466
-ile <- 1000
+ile <- 100
 
 library(sigmoid)
 
@@ -80,14 +80,8 @@ behaviour <- function()
   return(z)
 }
 
-f<- behaviour()
-
-save(f, file = 'MSE_10K_alfa_1.1678_100x10_eps0.5.Rdata')
-
-
-
-
-
+xd <- behaviour()
+xd
 
 
 
