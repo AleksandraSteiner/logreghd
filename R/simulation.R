@@ -47,23 +47,9 @@ simulation <- function(num_iters, n_observations, kappa, non_zero_proportion,
                          kappa, gamma)
   # TODO: reproducible!
   simulations <- lapply(1:num_iters, function(iteration) {
-      # betas <- generate_betas(n_observations, kappa, non_zero_proportion, gamma)
+      betas <- generate_betas(n_observations, kappa, non_zero_proportion, gamma)
       
-      n_variables <- round(kappa*n_observations)
-      
-      beta <- generate_beta_vector(n_variables, 
-                                   round(non_zero_proportion*n_variables), 
-                                   gamma)
-      
-      X <- matrix(rnorm(n_observations*n_variables)/sqrt(n_observations),
-                  n_observations, n_variables)
-      P <- sigmoid(X%*%beta)
-      Y <- rbinom(n_observations, 1, P)
-      model <- glm(Y ~ X, family = binomial)
-      betas <- list(true = beta,
-                    estimated = model$coef[2:(n_variables+1)])
-      
-      data.frame(iteration = iteration,
+      list(iteration = iteration,
                  bias_mle = bias(betas[["true"]], betas[["mle"]]),
                  mse_mle = mse(betas[['true']], betas[['mle']]),
                  new_mle = new_estimator(betas[['true']], betas[['mle']], 
@@ -81,3 +67,43 @@ simulation <- function(num_iters, n_observations, kappa, non_zero_proportion,
   simulations
 }
 
+
+simulation2 <- function(num_iters, n_observations, kappa, non_zero_proportion,
+                       gamma, alfa_star = 1.1678) {
+  c_os <- calculate_c_os(n_observations, round(kappa*n_observations), 
+                         kappa, gamma)
+  # TODO: reproducible!
+  simulations <- lapply(1:num_iters, function(iteration) {
+    n_variables <- round(kappa*n_observations)
+    
+    beta <- generate_beta_vector(n_variables, 
+                                 round(non_zero_proportion*n_variables), 
+                                 gamma)
+    
+    X <- matrix(rnorm(n_observations*n_variables)/sqrt(n_observations),
+                n_observations, n_variables)
+    P <- sigmoid(X%*%beta)
+    Y <- rbinom(n_observations, 1, P)
+    model <- glm(Y ~ X, family = binomial)
+    
+    betas <- list(true = beta,
+                  mle = model$coef[2:(n_variables+1)])
+    
+    
+    list(iteration = iteration,
+         bias_mle = bias(betas[["true"]], betas[["mle"]]),
+         mse_mle = mse(betas[['true']], betas[['mle']]),
+         new_mle = new_estimator(betas[['true']], betas[['mle']], 
+                                 betas[["true"]]),
+         bias_ec = bias(betas[['true']]/alfa_star, betas[['mle']]),
+         mse_ec = mse(betas[['true']]/alfa_star, betas[['mle']]),
+         new_ec = new_estimator(betas[['true']]/alfa_star, 
+                                betas[['mle']], 
+                                betas[["true"]]),
+         bias_os = bias(betas[['true']]*c_os, betas[['mle']]),
+         mse_os = mse(betas[['true']]*c_os, betas[['mle']]),
+         new_os = new_estimator(betas[['true']]*c_os, betas[['mle']], 
+                                betas[["true"]]))     
+  })
+  simulations
+}

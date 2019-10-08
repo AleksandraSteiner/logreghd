@@ -79,9 +79,3 @@ behaviour <- function()
   
   return(z)
 }
-
-xd <- behaviour()
-xd
-
-
-
