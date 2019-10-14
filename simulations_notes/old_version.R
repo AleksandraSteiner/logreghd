@@ -3,7 +3,7 @@
 
 alfa_star <- 1.1678
 sigma_star <- 3.3466
-ile <- 10
+ile <- 100
 
 library(sigmoid)
 
