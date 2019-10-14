@@ -37,8 +37,8 @@ bias <- function(true, estimated) {
 mse <- function(true, estimated) {
   mean((true - estimated)^2)
 }
-new_estimator <- function(true, estimated, multiplier) {
-  mean((true - estimated)*multiplier)
+new_estimator <- function(true, estimated) {
+  mean((true - estimated)*true)
 }
 
 simulation <- function(num_iters, n_observations, kappa, non_zero_proportion,
@@ -52,17 +52,14 @@ simulation <- function(num_iters, n_observations, kappa, non_zero_proportion,
       list(iteration = iteration,
                  bias_mle = bias(betas[["true"]], betas[["mle"]]),
                  mse_mle = mse(betas[['true']], betas[['mle']]),
-                 new_mle = new_estimator(betas[['true']], betas[['mle']], 
-                                         betas[["true"]]),
+                 new_mle = new_estimator(betas[['true']], betas[['mle']]),
                  bias_ec = bias(betas[['true']]/alfa_star, betas[['mle']]),
                  mse_ec = mse(betas[['true']]/alfa_star, betas[['mle']]),
-                 new_ec = new_estimator(betas[['true']]/alfa_star, 
-                                        betas[['mle']], 
-                                        betas[["true"]]),
+                 new_ec = new_estimator(betas[['true']]/alfa_star,betas[['mle']]),
                  bias_os = bias(betas[['true']]*c_os, betas[['mle']]),
                  mse_os = mse(betas[['true']]*c_os, betas[['mle']]),
-                 new_os = new_estimator(betas[['true']]*c_os, betas[['mle']], 
-                                        betas[["true"]]))     
+                 new_os = new_estimator(betas[['true']]*c_os, betas[['mle']])    
+           ) 
   })
   simulations
 }
@@ -93,17 +90,14 @@ simulation2 <- function(num_iters, n_observations, kappa, non_zero_proportion,
     list(iteration = iteration,
          bias_mle = bias(betas[["true"]], betas[["mle"]]),
          mse_mle = mse(betas[['true']], betas[['mle']]),
-         new_mle = new_estimator(betas[['true']], betas[['mle']], 
-                                 betas[["true"]]),
+         new_mle = new_estimator(betas[['true']], betas[['mle']]),
          bias_ec = bias(betas[['true']]/alfa_star, betas[['mle']]),
          mse_ec = mse(betas[['true']]/alfa_star, betas[['mle']]),
-         new_ec = new_estimator(betas[['true']]/alfa_star, 
-                                betas[['mle']], 
-                                betas[["true"]]),
+         new_ec = new_estimator(betas[['true']]/alfa_star,  betas[['mle']]),
          bias_os = bias(betas[['true']]*c_os, betas[['mle']]),
          mse_os = mse(betas[['true']]*c_os, betas[['mle']]),
-         new_os = new_estimator(betas[['true']]*c_os, betas[['mle']], 
-                                betas[["true"]]))     
+         new_os = new_estimator(betas[['true']]*c_os, betas[['mle']])   
+    )
   })
   simulations
 }
