@@ -3,7 +3,7 @@
 
 alfa_star <- 1.1678
 sigma_star <- 3.3466
-ile <- 100
+ile <- 10
 
 library(sigmoid)
 
@@ -34,7 +34,6 @@ behaviour <- function()
     model <- glm(Y~X,family = binomial)
     beta_MLE <- model$coef[2:(p+1)] #estymowane wspolczynniki
     data[,i] <- beta_MLE 
-    cat(i,file ='MSE_100x10.txt',append = T,sep = '\n')
   }
   
   biasMLE<-c() 
