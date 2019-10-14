@@ -34,7 +34,6 @@ behaviour <- function()
     model <- glm(Y~X,family = binomial)
     beta_MLE <- model$coef[2:(p+1)] #estymowane wspolczynniki
     data[,i] <- beta_MLE 
-    cat(i,file ='MSE_100x10.txt',append = T,sep = '\n')
   }
   
   biasMLE<-c() 
