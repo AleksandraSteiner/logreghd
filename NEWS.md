@@ -1,6 +1,6 @@
 # logreghd 0.0.2
 
-* Adds travis and codecov. 
+* Adds travis and codecov.   
 
 # logreghd 0.0.1
 
