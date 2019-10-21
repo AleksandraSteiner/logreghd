@@ -4,6 +4,17 @@
 [![Travis build status](https://travis-ci.org/StatsIMUwr/logreg_hd.svg?branch=master)](https://travis-ci.org/StatsIMUwr/logreg_hd)
 [![Codecov test coverage](https://codecov.io/gh/StatsIMUwr/logreg_hd/branch/master/graph/badge.svg)](https://codecov.io/gh/StatsIMUwr/logreg_hd?branch=master)
 
-TBA: an R package that implements modifications of Maximum Likelihood Estimators for logistic regression coefficients for high dimensional data.
+This package implements a novel estimation method for high dimensional logistic 
+regression that has two advantages over the classical estimates:
+  
+  - estimated coefficients are unbiased,
+  - MSE is minimized.
+
+To get started, install the current version from GitHub:
+
+```
+devtools::install_github("StatsIMUWr/logreghd")
+```
+
 
 

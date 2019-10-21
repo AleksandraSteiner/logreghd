@@ -1,5 +1,5 @@
 Package: logreghd
-Title: Modern Logistic Regression For High-Dimensional Data
+Title: Modern Logistic Regression For High Dimensional Data
 Version: 0.0.2
 Authors@R: c(
   person("Aleksandra", "Steiner", role = c("cre", "aut", "cph"),
