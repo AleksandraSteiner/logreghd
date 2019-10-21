@@ -1,14 +1,18 @@
-Package: ASEstimator
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+Package: logreg_hd
+Title: Modern Logistic Regression For High-Dimensional Data
+Version: 0.0.1
+Authors@R: c(
+  person("Aleksandra", "Steiner", role = c("cre", "aut", "cph"))
+  person("Mateusz", "Staniak", role = "aut",
+    email = "staniak@math.uni.wroc.pl"),
+  person("Małgorzata", "Bogdan", role = "aut",
+    email = "malgorzata.bogdan@uwr.edu.pl")
+  )
+Description: In high dimensions maximum likelihood estimators become severly 
+  biased a shown by Sur, Candes (2018) <doi:10.1073/pnas.1810420116>. This 
+  package implements novel estimators of the logistic regression parameters
+  that remove the bias of MLE and improve the predictive performance.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
