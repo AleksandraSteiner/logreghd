@@ -1,8 +1,9 @@
-Package: logreg_hd
+Package: logreghd
 Title: Modern Logistic Regression For High-Dimensional Data
 Version: 0.0.1
 Authors@R: c(
-  person("Aleksandra", "Steiner", role = c("cre", "aut", "cph"))
+  person("Aleksandra", "Steiner", role = c("cre", "aut", "cph"),
+    email = "aleksandra.steiner@gmail.com"),
   person("Mateusz", "Staniak", role = "aut",
     email = "staniak@math.uni.wroc.pl"),
   person("Małgorzata", "Bogdan", role = "aut",

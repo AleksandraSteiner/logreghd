@@ -1,4 +1,4 @@
-#' fits logistic regression model with unbiased estimator 
+#' Fits an unbiased logistic regression model 
 #' 
 #' @param X design matrix
 #' @param Y response variable
