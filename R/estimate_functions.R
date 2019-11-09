@@ -37,3 +37,10 @@ estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 
     
   })
 }
+
+solve_nonlinear_equations <- function(kappa, gamma) {
+  alpha <- 1
+  sigma <- 1
+  lambda <- 1
+  list(alpha = alpha, sigma = sigma, lambda = lambda)
+}
