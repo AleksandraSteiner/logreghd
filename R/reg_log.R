@@ -8,23 +8,17 @@
 #' 
 reg_log_hd <- function(X, Y, estimate_gamma = FALSE) { 
   
-  if(estimate_gamma == FALSE) {
-    gamma <- 5
-  }
-  else {
-    stop('not implemented yet')
-  }
-  
+  get_gamma_estimator()
   n_observations <- length(Y)
-  n_variables <- length(X[1, ])
+  n_variables <- ncol(X)
   kappa <- n_variables/n_observations
-  alpha_star <- solve_nonlinear_equations(kappa, gamma)$alpha
-  sigma_star <- solve_nonlinear_equations(kappa, gamma)$sigma
-  
-  logistic_model <- glm(Y ~ X, family = binomial)
-  mle_estimator <- logistic_model$coefficients[2 : (n_variables+1)]
+  solution <-  as.numeric(solve_nonlinear_equations(kappa, gamma))
+  alpha_star <- solution[1]
+  sigma_star <- solution[2]
+  mle_estimator <- get_mle_estimator(Y, X, n_variables)
   c_as <- calculate_c_os(n_observations, n_variables, gamma, 
                          alpha_star, sigma_star)
   
   as_estimator(mle_estimator, c_as)
 } 
+

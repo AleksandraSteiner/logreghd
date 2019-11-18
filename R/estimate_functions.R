@@ -26,8 +26,6 @@ mle_existance_bootstrap <- function(X, kappa, n_rep) {  #n_rep > 0
 mle_existance <- function(X, n_obs) {
   bootstrap_sample <- sample(1:nrow(X), n_obs, replace = TRUE)
   bootstrap_data <- X[bootstrap_sample, ]
-  
-
   }
 
 estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 10) {
@@ -43,4 +41,20 @@ solve_nonlinear_equations <- function(kappa, gamma) {
   sigma <- 1
   lambda <- 1
   list(alpha = alpha, sigma = sigma, lambda = lambda)
+}
+
+get_gamma_estimator <- function(estimate_gamma, X, Y) {
+  if(estimate_gamma == FALSE) {
+    gamma <- 5
+  }
+  else {
+    stop('not implemented yet')
+  }
+  return(gamma)
+}
+
+get_mle_estimator <- function(Y, X, n_variables) {
+  logistic_model <- glm(Y ~ X, family = binomial)
+  mle_estimator <- logistic_model[1][2 : (n_variables+1)]
+  return(mle_estimator)
 }
