@@ -26,7 +26,7 @@ mle_existance_bootstrap <- function(X, kappa, n_rep) {  #n_rep > 0
 mle_existance <- function(X, n_obs) {
   bootstrap_sample <- sample(1:nrow(X), n_obs, replace = TRUE)
   bootstrap_data <- X[bootstrap_sample, ]
-  }
+}
 
 estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 10) {
   kappa_grid <- get_kappa_grid(kappa_method, n_kappa) #TODO: add minimum kappa as parameter
@@ -36,14 +36,14 @@ estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 
   })
 }
 
-solve_nonlinear_equations <- function(kappa, gamma) {
+solve_equations <- function(kappa, gamma) {
   alpha <- 1
   sigma <- 1
   lambda <- 1
   list(alpha = alpha, sigma = sigma, lambda = lambda)
 }
 
-get_gamma_estimator <- function(estimate_gamma, X, Y) {
+get_gamma_estimator <- function(X, Y, estimate_gamma) {
   if(estimate_gamma == FALSE) {
     gamma <- 5
   }
