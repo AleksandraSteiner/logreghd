@@ -8,7 +8,7 @@
 #' 
 reg_log_hd <- function(X, Y, estimate_gamma = FALSE) { 
   
-  n_observations <- length(Y)
+  n_observations <- nrow(Y)
   n_variables <- ncol(X)
   gamma <- get_gamma_estimator(X, Y, estimate_gamma)
   solution <-  solve_equations(n_variables/n_observations, gamma)

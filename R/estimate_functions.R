@@ -9,31 +9,56 @@ as_estimator <- function(mle_estimator, c_as) {
   mle_estimator * c_as
 }
 
-get_kappa_grid <- function(method, n) {
+get_kappa_grid <- function(method, n_kappa, kappa) {
   if(method == 'random') {
-    runif(n, 0, 0.5)
+    runif(n_kappa, kappa, 0.5)
   } else {
-    stop('not implemented yet')
+    seq(kappa, 0.5, length.out = n_kappa)
   }
 }
 
-mle_existance_bootstrap <- function(X, kappa, n_rep) {  #n_rep > 0
-  lapply(1:n_rep, function(iteration) {
-    mle_existance(X, round(ncol(X)/kappa))
+is_feasible <- function(X, Y) {
+  solution_object <- lp("min", 0, X, 
+                        ifelse(Y == 0, "<=", ">="), 
+                        ifelse(Y == 0, -1, 1)) #weak inequality
+  solution_object[28] == 0
+}
+
+estimate_pi <- function(n_rep, n_observations, n_variables, kappa) {
+  feasibile <- sapply(1:n_rep, function(i) {
+    ind <- sample(1:n_observations, round(n_variables/kappa))
+    is_feasible(X[ind, ], Y[ind])
+  })
+  sum(feasibile)/n_rep
+}
+
+estimate_pi_kappa <- function(X, Y, n_rep, n_observations, n_variables, kappa_grid) {
+  lapply(kappa_grid, function(kappa) {
+    estimate_pi(n_rep, n_observations, n_variables, kappa)
   })
 }
 
-mle_existance <- function(X, n_obs) {
-  bootstrap_sample <- sample(1:nrow(X), n_obs, replace = TRUE)
-  bootstrap_data <- X[bootstrap_sample, ]
+find_brink <- function(kappa_grid, pi_hat_kappa) { #TODO what if there is no such kappa
+  j <- (pi_hat_kappa >= 0.5)[1]
+  list(kappa_i = kappa_grid[j-1], kappa_j = kappa_grid[j], 
+       pi_hat_kappa_i = pi_hat_kappa[j-1], pi_hat_kappa_j = pi_hat_kappa[j])
+}
+
+estimate_kappa <- function(X, Y, n_rep = 10, n_kappa = 50, kappa_method = 'random') {
+  n_variables <- ncol(X)
+  n_observations <- nrow(X)
+  kappa_grid <- get_kappa_grid(kappa_method, n_kappa, n_variables/n_observations) 
+  pi_hat_kappa <- estimate_pi_kappa(n_rep, n_observations, n_variables, kappa_grid)
+  brink_points <- find_brink(kappa_grid, pi_hat_kappa)
+  interpolation <- approx(c(brink_points[1], brink_points[2]), 
+                          c(brink_points[3], brink_points[4]))
+  ind <- interpolation[['y']] == 0.5
+  x <- interpolation[['x']]
+  x[ind]
 }
 
 estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 10) {
-  kappa_grid <- get_kappa_grid(kappa_method, n_kappa) #TODO: add minimum kappa as parameter
-  
-  lapply(kappa_grid, function(kappa) {
-    
-  })
+  #TODO: set gamma_hat = g_MLE(kappa_hat)
 }
 
 solve_equations <- function(kappa, gamma) {
