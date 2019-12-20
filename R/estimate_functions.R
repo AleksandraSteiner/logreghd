@@ -9,6 +9,8 @@ as_estimator <- function(mle_estimator, c_as) {
   mle_estimator * c_as
 }
 
+
+#' @importFrom stats runif
 get_kappa_grid <- function(method, n_kappa, kappa) {
   if(method == 'random') {
     runif(n_kappa, kappa, 0.5)
@@ -17,6 +19,7 @@ get_kappa_grid <- function(method, n_kappa, kappa) {
   }
 }
 
+#' @importFrom lpSolve lp
 is_feasible <- function(X, Y) {
   solution_object <- lp("min", 0, X, 
                         ifelse(Y == 0, "<=", ">="), 
@@ -24,9 +27,9 @@ is_feasible <- function(X, Y) {
   solution_object[28] == 0
 }
 
-estimate_pi <- function(n_rep, n_observations, n_variables, kappa) {
+estimate_pi <- function(X, Y, n_rep, kappa) {
   feasibile <- sapply(1:n_rep, function(i) {
-    ind <- sample(1:n_observations, round(n_variables/kappa))
+    ind <- sample(1:nrow(X), round(ncol(Y)/kappa))
     is_feasible(X[ind, ], Y[ind])
   })
   sum(feasibile)/n_rep
@@ -34,7 +37,7 @@ estimate_pi <- function(n_rep, n_observations, n_variables, kappa) {
 
 estimate_pi_kappa <- function(X, Y, n_rep, n_observations, n_variables, kappa_grid) {
   lapply(kappa_grid, function(kappa) {
-    estimate_pi(n_rep, n_observations, n_variables, kappa)
+    estimate_pi(X, Y, n_rep, kappa)
   })
 }
 
@@ -44,6 +47,7 @@ find_brink <- function(kappa_grid, pi_hat_kappa) { #TODO what if there is no suc
        pi_hat_kappa_i = pi_hat_kappa[j-1], pi_hat_kappa_j = pi_hat_kappa[j])
 }
 
+#' @importFrom stats approx
 estimate_kappa <- function(X, Y, n_rep = 10, n_kappa = 50, kappa_method = 'random') {
   n_variables <- ncol(X)
   n_observations <- nrow(X)
@@ -75,11 +79,12 @@ get_gamma_estimator <- function(X, Y, estimate_gamma) {
   else {
     stop('not implemented yet')
   }
-  return(gamma)
+  gamma
 }
 
+
+#' @importFrom stats glm binomial coef
 get_mle_estimator <- function(Y, X, n_variables) {
   logistic_model <- glm(Y ~ X, family = binomial)
-  mle_estimator <- logistic_model[1][2 : (n_variables+1)]
-  return(mle_estimator)
+  coef(logistic_model)[2 : (n_variables + 1)]
 }
