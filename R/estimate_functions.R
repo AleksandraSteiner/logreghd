@@ -9,7 +9,6 @@ as_estimator <- function(mle_estimator, c_as) {
   mle_estimator * c_as
 }
 
-
 #' @importFrom stats runif
 get_kappa_grid <- function(method, n_kappa, kappa) {
   if(method == 'random') {
@@ -20,48 +19,72 @@ get_kappa_grid <- function(method, n_kappa, kappa) {
 }
 
 #' @importFrom lpSolve lp
-is_feasible <- function(X, Y) {
+#checks if MLE exists
+is_feasible <- function(X, Y) { 
   solution_object <- lp("min", 0, X, 
                         ifelse(Y == 0, "<=", ">="), 
-                        ifelse(Y == 0, -1, 1)) #weak inequality
-  solution_object[28] == 0
+                        ifelse(Y == 0, -1, 1)) 
+  #we do not put zero because of weak inequality
+  solution_object[28] == 0 
+  #if true, the problem is feasible, so MLE does not exist
 }
 
-estimate_pi <- function(X, Y, n_rep, kappa) {
+#caclulates how often MLE doesn't exist for i-th kappa
+estimate_pi_i <- function(X, Y, n_rep, kappa_i) { 
+  n_variables <- ncol(X)
+  n_observations <- nrow(X)
   feasibile <- sapply(1:n_rep, function(i) {
-    ind <- sample(1:nrow(X), round(ncol(Y)/kappa))
+    ind <- sample(1:n_observations, round(n_variables/kappa_i)) 
     is_feasible(X[ind, ], Y[ind])
   })
   sum(feasibile)/n_rep
+  print("hello world")
 }
 
-estimate_pi_kappa <- function(X, Y, n_rep, n_observations, n_variables, kappa_grid) {
-  lapply(kappa_grid, function(kappa) {
-    estimate_pi(X, Y, n_rep, kappa)
+#caluculates pi_hats for kappa grid
+estimate_pi_kappagrid <- function(X, Y, n_rep, kappa_grid) {
+  n_variables <- ncol(X)
+  n_observations <- nrow(X)
+  sapply(kappa_grid, function(kappa_i) {
+    estimate_pi_i(X, Y, n_rep, kappa_i)
   })
 }
 
-find_brink <- function(kappa_grid, pi_hat_kappa) { #TODO what if there is no such kappa
-  j <- (pi_hat_kappa >= 0.5)[1]
-  list(kappa_i = kappa_grid[j-1], kappa_j = kappa_grid[j], 
-       pi_hat_kappa_i = pi_hat_kappa[j-1], pi_hat_kappa_j = pi_hat_kappa[j])
+find_boundary <- function(kappa_grid, pi_kappas) {
+  j <- which(pi_kappas >= 0.5)[1]
+  if(j > 1) {
+    list(kappa_i = kappa_grid[j - 1], 
+         kappa_j = kappa_grid[j], 
+         pi_hat_kappa_i = pi_kappas[j - 1], 
+         pi_hat_kappa_j = pi_kappas[j])
+  } else if (j == 1) {
+    #use new kappa < kappa_1 and corresponding pi ?
+  } else if (j == integer(0)) {
+    #return proper information/suggestion if there is not such kappa ?
+  }
 }
 
 #' @importFrom stats approx
-estimate_kappa <- function(X, Y, n_rep = 10, n_kappa = 50, kappa_method = 'random') {
+estimate_kappa <- function(X, Y, n_rep = 10, 
+                           n_kappa = 50, 
+                           kappa_method = 'random') {
   n_variables <- ncol(X)
   n_observations <- nrow(X)
-  kappa_grid <- get_kappa_grid(kappa_method, n_kappa, n_variables/n_observations) 
-  pi_hat_kappa <- estimate_pi_kappa(n_rep, n_observations, n_variables, kappa_grid)
-  brink_points <- find_brink(kappa_grid, pi_hat_kappa)
-  interpolation <- approx(c(brink_points[1], brink_points[2]), 
-                          c(brink_points[3], brink_points[4]))
-  ind <- interpolation[['y']] == 0.5
-  x <- interpolation[['x']]
-  x[ind]
+  kappa_grid <- get_kappa_grid(kappa_method, n_kappa, 
+                               n_variables/n_observations) 
+  pi_hat_kappa <- estimate_pi_kappa(n_rep, n_observations, 
+                                    n_variables, kappa_grid)
+  boundary <- find_boundary(kappa_grid, pi_hat_kappa)
+  kappa_j_1 <- boundary[1]
+  kappa_j <- boundary[2]
+  pi_j_1 <- boundary[3]
+  pi_j <- boundary[4]
+  kappa_j_1 + (0.5 - pi_j_1) * (kappa_j - kappa_j_1) 
+  / (pi_j - pi_j_1) 
+  #interpolation solution for kappa_hat (x)
 }
 
-estimate_gamma <- function(X, Y, n_kappa = 50, kappa_method = 'random', n_rep = 10) {
+estimate_gamma <- function(kappa_hat) {
   #TODO: set gamma_hat = g_MLE(kappa_hat)
 }
 
@@ -81,7 +104,6 @@ get_gamma_estimator <- function(X, Y, estimate_gamma) {
   }
   gamma
 }
-
 
 #' @importFrom stats glm binomial coef
 get_mle_estimator <- function(Y, X, n_variables) {
