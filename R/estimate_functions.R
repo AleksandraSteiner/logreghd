@@ -9,6 +9,7 @@ as_estimator <- function(mle_estimator, c_as) {
   mle_estimator * c_as
 }
 
+#' @importFrom stats runif
 get_kappa_grid <- function(method, n_kappa, kappa) {
   if(method == 'random') {
     runif(n_kappa, kappa, 0.5)
@@ -17,12 +18,13 @@ get_kappa_grid <- function(method, n_kappa, kappa) {
   }
 }
 
+#' @importFrom lpSolve lp
 #checks if MLE exists
 is_feasible <- function(X, Y) { 
   solution_object <- lp("min", 0, X, 
                         ifelse(Y == 0, "<=", ">="), 
                         ifelse(Y == 0, -1, 1)) 
-                        #we do not put zero because of weak inequality
+  #we do not put zero because of weak inequality
   solution_object[28] == 0 
   #if true, the problem is feasible, so MLE does not exist
 }
@@ -62,6 +64,7 @@ find_boundary <- function(kappa_grid, pi_kappas) {
   }
 }
 
+#' @importFrom stats approx
 estimate_kappa <- function(X, Y, n_rep = 10, 
                            n_kappa = 50, 
                            kappa_method = 'random') {
@@ -99,11 +102,11 @@ get_gamma_estimator <- function(X, Y, estimate_gamma) {
   else {
     stop('not implemented yet')
   }
-  return(gamma)
+  gamma
 }
 
+#' @importFrom stats glm binomial coef
 get_mle_estimator <- function(Y, X, n_variables) {
   logistic_model <- glm(Y ~ X, family = binomial)
-  mle_estimator <- logistic_model[[1]][2 : (n_variables + 1)]
-  return(mle_estimator)
+  coef(logistic_model)[2 : (n_variables + 1)]
 }
