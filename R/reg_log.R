@@ -1,13 +1,14 @@
-#' Fits MSE-minimizing logistic regression model 
+#' @title Fits MSE-minimizing logistic regression model 
 #' 
-#' give a deeper explanation
+#' @description give a deeper explanation
 #' 
 #' @param X design matrix
 #' @param Y response variable
 #' @param estimate_gamma if TRUE, signal strength will be estimated from data
 #' 
+#' @seealso \code{\link[stats]{glm}}
+#' 
 #' @export 
-#' @examples
 #' 
 #' 
 reg_log_hd <- function(X, Y, estimate_gamma = FALSE) { 

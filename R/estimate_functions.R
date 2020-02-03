@@ -50,7 +50,7 @@ estimate_pi <- function(X, Y, n_rep, kappa_grid) {
 }
 
 find_boundary <- function(kappa_grid, pi_grid) {
-  j <- which(pi_kappas >= 0.5)[1]
+  j <- which(pi_grid >= 0.5)[1]
   if(j > 1) {
     list(kappa_i = kappa_grid[j - 1], 
          kappa_j = kappa_grid[j], 
@@ -70,7 +70,7 @@ estimate_kappa <- function(X, Y, n_rep = 10,
   n_observations <- nrow(X)
   kappa_grid <- get_kappa_grid(kappa_method, n_kappa, 
                                n_variables/n_observations) 
-  pi_hat_kappa <- estimate_pi_kappa(n_rep, n_observations, 
+  pi_hat_kappa <- estimate_pi(n_rep, n_observations, 
                                     n_variables, kappa_grid)
   boundary <- find_boundary(kappa_grid, pi_hat_kappa)
   kappa_j_1 <- boundary[1]

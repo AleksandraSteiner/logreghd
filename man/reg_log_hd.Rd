@@ -16,7 +16,6 @@ reg_log_hd(X, Y, estimate_gamma = FALSE)
 \description{
 give a deeper explanation
 }
-\examples{
-
-
+\seealso{
+\code{\link[stats]{glm}}
 }
