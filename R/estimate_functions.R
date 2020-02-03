@@ -38,11 +38,10 @@ estimate_pi_i <- function(X, Y, n_rep, kappa_i) {
     is_feasible(X[ind, ], Y[ind])
   })
   sum(feasibile)/n_rep
-  print("hello world")
 }
 
 #caluculates pi_hats for kappa grid
-estimate_pi_kappagrid <- function(X, Y, n_rep, kappa_grid) {
+estimate_pi <- function(X, Y, n_rep, kappa_grid) {
   n_variables <- ncol(X)
   n_observations <- nrow(X)
   sapply(kappa_grid, function(kappa_i) {
@@ -50,18 +49,17 @@ estimate_pi_kappagrid <- function(X, Y, n_rep, kappa_grid) {
   })
 }
 
-find_boundary <- function(kappa_grid, pi_kappas) {
+find_boundary <- function(kappa_grid, pi_grid) {
   j <- which(pi_kappas >= 0.5)[1]
   if(j > 1) {
     list(kappa_i = kappa_grid[j - 1], 
          kappa_j = kappa_grid[j], 
-         pi_hat_kappa_i = pi_kappas[j - 1], 
-         pi_hat_kappa_j = pi_kappas[j])
+         pi_hat_kappa_i = pi_grid[j - 1], 
+         pi_hat_kappa_j = pi_grid[j])
   } else if (j == 1) {
     #use new kappa < kappa_1 and corresponding pi ?
   } else if (j == integer(0)) {
-    #return proper information/suggestion if there is not such kappa ?
-  }
+    stop('no kappa estimate exists, try with finer grid')  }
 }
 
 #' @importFrom stats approx
@@ -79,8 +77,7 @@ estimate_kappa <- function(X, Y, n_rep = 10,
   kappa_j <- boundary[2]
   pi_j_1 <- boundary[3]
   pi_j <- boundary[4]
-  kappa_j_1 + (0.5 - pi_j_1) * (kappa_j - kappa_j_1) 
-  / (pi_j - pi_j_1) 
+  kappa_j_1 + (0.5 - pi_j_1) * (kappa_j - kappa_j_1) / (pi_j - pi_j_1) 
   #interpolation solution for kappa_hat (x)
 }
 
