@@ -2,7 +2,7 @@
 % Please edit documentation in R/reg_log.R
 \name{reg_log_hd}
 \alias{reg_log_hd}
-\title{Fits an unbiased logistic regression model}
+\title{Fits MSE-minimizing logistic regression model}
 \usage{
 reg_log_hd(X, Y, estimate_gamma = FALSE)
 }
@@ -14,5 +14,8 @@ reg_log_hd(X, Y, estimate_gamma = FALSE)
 \item{estimate_gamma}{if TRUE, signal strength will be estimated from data}
 }
 \description{
-Fits an unbiased logistic regression model
+give a deeper explanation
+}
+\seealso{
+\code{\link[stats]{glm}}
 }
