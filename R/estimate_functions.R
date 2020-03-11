@@ -1,6 +1,6 @@
 #' @importFrom stats runif
 get_kappa_grid <- function(method, n_kappa, kappa) {
-  if(method == 'random') {
+  if(method == "random") {
     runif(n_kappa, kappa, 0.5)
   } else {
     seq(kappa, 0.5, length.out = n_kappa)
@@ -48,23 +48,23 @@ find_boundary <- function(kappa_grid, pi_grid) {
          pi_hat_kappa_i = pi_grid[j - 1], 
          pi_hat_kappa_j = pi_grid[j])
   } else if (j == 1) {
-    else if(pi_grid[1] == 0.5) {
+    else if (pi_grid[1] == 0.5) {
       list(kappa_i = kappa_grid[j], 
            kappa_j = kappa_grid[j], 
            pi_hat_kappa_i = pi_grid[j], 
            pi_hat_kappa_j = pi_grid[j] + 1)
     }
-    else if(pi_grid[1] > 0.5) {
+    else if (pi_grid[1] > 0.5) {
       #Is it possible and should be kappa <- kappa_grid[1] found ?
     }
   } else if (j == integer(0)) {
-    stop('no kappa estimate exists, try with a finer grid')  } 
+    stop("no kappa estimate exists, try with a finer grid")  } 
 }
 
 #' @importFrom stats approx
 estimate_kappa <- function(X, Y, n_rep = 10, 
                            n_kappa = 50, 
-                           kappa_method = 'random') {
+                           kappa_method = "random") {
   n_variables <- ncol(X)
   n_observations <- nrow(X)
   kappa_grid <- get_kappa_grid(kappa_method, n_kappa, 
@@ -88,9 +88,9 @@ estimate_gamma <- function(kappa_hat) {
 
 #two-dimensional density
 calculate_Q_density <- function(q1, q2, alpha, gamma, kappa, sigma) {
-  exp((-q1^2 * ( (alpha * gamma)^2 + kappa * sigma^2)  
-       - 2 * q1 * q2 * alpha * gamma^2
-       - q2^2 * gamma^2) / 2 * kappa * sigma^2) 
+  exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
+       - 2 * q1 * q2 * alpha * gamma ^ 2
+       - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) 
   / (2 * pi * sigma * sqrt(kappa))
 }
 
@@ -109,45 +109,52 @@ prox <- function(z, lambda) {
   derivative()
 }
 
-calculate_integral1 <- function(alpha, sigma, lambda) {
-  function1 <- function(q1, q2) { #this is what we are calculating expected value of
-    (2 * lambda^2 * exp(q1) * exp(2 * prox(q2, lambda))) /
-      ((1 + exp(q1)) * (1 + exp(prox(q2, lambda)))^2)
+integral_1 <- function(alpha, sigma, lambda, kappa, gamma) {
+  function(q1, q2) {
+    calculate_Q_density(q1, q2, alpha, gamma, kappa, sigma) *
+    ((2 * lambda ^ 2 * exp(q1) * exp(2 * prox(q2, lambda))) /
+    ((1 + exp(q1)) * (1 + exp(prox(q2, lambda))) ^ 2 * kappa ^ 2)) - sigma ^ 2
   }
-  (1/kappa^2) * adaptIntegrate(function1, 
-                               lowerLimit = c(-Inf, -Inf), 
-                               upperLimit = c(+Inf, +Inf)) - sigma^2
 }
 
-calculate_integral2 <- function(alpha, sigma, lambda) {
-  function2 <- function(q1, q2) { 
+integral_2 <- function(alpha, sigma, lambda, kappa, gamma) {
+  function(q1, q2) {
+    calculate_Q_density(q1, q2, alpha, gamma, kappa, sigma) *
     (lambda * q1 * exp(q1) * exp(prox(q2, lambda))) /
       ((1 + exp(q1)) * (1 + exp(prox(q2, lambda))))
   }
-  adaptIntegrate(function2, lowerLimit = c(-Inf, -Inf), upperLimit = c(+Inf, +Inf))
 }
 
-calculate_integral3 <- function(alpha, sigma, lambda) {
-  function3 <- function(q1, q2) { 
-    (2 * exp(q1) * (1 + exp(prox(q2, lambda)))^2) /
-      ((1 + exp(q1)) * ((1 + exp(prox(q2, lambda)))^2 + lambda * exp(prox(q2, lambda))))
+integral_3 <- function(alpha, sigma, lambda, kappa, gamma) {
+  function(q1, q2) {
+    calculate_Q_density(q1, q2, alpha, gamma, kappa, sigma) *
+    (2 * exp(q1) * (1 + exp(prox(q2, lambda))) ^ 2) /
+    ((1 + exp(q1)) * ((1 + exp(prox(q2, lambda))) ^ 2 
+    + lambda * exp(prox(q2, lambda)))) + kappa - 1
   }
-  adaptIntegrate(function3, 
-                 lowerLimit = c(-Inf, -Inf), 
-                 upperLimit = c(+Inf, +Inf)) + kapp - 1
+}
+
+#' @importFrom cubature adaptIntegrate
+calculate_integral <- function(alpha, sigma, lambda, kappa, gamma, integral) {
+  integral_function <- integral(alpha, sigma, lambda, kappa, gamma) 
+  adaptIntegrate(integral, c(-Inf, -Inf), c(+Inf, +Inf))
+}
+
+system_values <- function(kappa, gamma) {
+  function(alpha, sigma, lambda) {
+    c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3))
+  }
 }
 
 #' @importFrom nleqslv nleqslv
 solve_equations <- function(kappa, gamma) {
-  solve <- function(alpha, sigma, lambda) {
-    xstart <- c(1.1678, 3.3466, 0.9605) #what should be the starting point here ?
-    solution <- nleqslv(xstart, calculate_values)$x #control options
-    alpha <- solution[1]
-    sigma <- solution[2]
-    lambda <- solution[3]
-    list(alpha = alpha, sigma = sigma, lambda = lambda)
-  }
-  solve()
+    xstart <- c(1.1678, 3.3466, 0.9605) 
+    system_values <- system_values(kappa, gamma)
+    solution <- nleqslv(xstart, system_values)$x 
+    names(solution) <- c("alpha", "sigma", "lambda")
+    solution
 }
 
 get_gamma_estimator <- function(X, Y, estimate_gamma) {
@@ -155,7 +162,7 @@ get_gamma_estimator <- function(X, Y, estimate_gamma) {
     gamma <- 5
   }
   else {
-    stop('not implemented yet')
+    stop("not implemented yet")
   }
   gamma
 }
@@ -169,7 +176,7 @@ get_mle_estimator <- function(Y, X, n_variables) {
 calculate_c_os <- function(n_observations, n_variables, gamma, 
                            alfa_star = 1.1678, sigma_star = 3.3466) {
   numerator <- n_observations*gamma*alfa_star
-  denominator <-((sigma_star^2)*n_variables + n_observations*gamma*(alfa_star^2))
+  denominator <-((sigma_star ^ 2)*n_variables + n_observations*gamma*(alfa_star ^ 2))
   numerator/denominator
 }
 
