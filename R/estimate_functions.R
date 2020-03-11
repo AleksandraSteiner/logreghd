@@ -58,7 +58,7 @@ find_boundary <- function(kappa_grid, pi_grid) {
       #Is it possible and should be kappa <- kappa_grid[1] found ?
     }
   } else if (j == integer(0)) {
-    stop('no kappa estimate exists, try with a finer grid')  } #is it a correct message ?
+    stop('no kappa estimate exists, try with a finer grid')  } 
 }
 
 #' @importFrom stats approx
@@ -94,48 +94,60 @@ calculate_Q_density <- function(q1, q2, alpha, gamma, kappa, sigma) {
   / (2 * pi * sigma * sqrt(kappa))
 }
 
-prox_function <- function(z) {
+prox <- function(z, lambda) {
+
+  der <- function(t, z1 = z, lambda1 = lambda) {
+    lambda1 * exp(t) / (1 + exp(t)) + t - z1
+  }
   
+  derivative <- function(t) {
+    xstart <- 1
+    solution <- nleqslv(xstart, der)$x 
+    solution[1]
+  }
+  
+  derivative()
 }
 
-#functions from system of equations
-h_function <- function(q1, q2) {
-  (2 * lambda^2 * exp(q1) * exp(2 * prox(q2))) /
-    ((1 + exp(q1)) * (1 + exp(prox(q2)))^2)
+calculate_integral1 <- function(alpha, sigma, lambda) {
+  function1 <- function(q1, q2) { #this is what we are calculating expected value of
+    (2 * lambda^2 * exp(q1) * exp(2 * prox(q2, lambda))) /
+      ((1 + exp(q1)) * (1 + exp(prox(q2, lambda)))^2)
+  }
+  (1/kappa^2) * adaptIntegrate(function1, 
+                               lowerLimit = c(-Inf, -Inf), 
+                               upperLimit = c(+Inf, +Inf)) - sigma^2
 }
 
-g_function <- function(q1, q2) {
-  (lambda * q1 * exp(q1) * exp(prox(q2))) /
-    ((1 + exp(q1)) * (1 + exp(prox(q2))))
+calculate_integral2 <- function(alpha, sigma, lambda) {
+  function2 <- function(q1, q2) { 
+    (lambda * q1 * exp(q1) * exp(prox(q2, lambda))) /
+      ((1 + exp(q1)) * (1 + exp(prox(q2, lambda))))
+  }
+  adaptIntegrate(function2, lowerLimit = c(-Inf, -Inf), upperLimit = c(+Inf, +Inf))
 }
 
-j_function <- function(q1, q2) {
-  (2 * exp(q1) * (1 + exp(prox(q2)))^2) /
-    ((1 + exp(q1)) * ((1 + exp(prox(q2)))^2 + lambda * exp(prox(q2))))
-}
-
-calculate_values <- function(alpha, sigma, lambda) {
-  y <- numeric(3)
-  y[1] <- (1/kappa^2) * adaptIntegrate(h_function, 
-                               lowerLimit = c(-infinity, -infinity), 
-                               upperLimit = c(+infinity, +infinity)) - sigma^2
-  y[2] <- adaptIntegrate(g_function, 
-                         lowerLimit = c(-infinity, -infinity), 
-                         upperLimit = c(+infinity, +infinity))
-  y[3] <- adaptIntegrate(h_function, 
-                         lowerLimit = c(-infinity, -infinity), 
-                         upperLimit = c(+infinity, +infinity)) + kappa - 1
-  y
+calculate_integral3 <- function(alpha, sigma, lambda) {
+  function3 <- function(q1, q2) { 
+    (2 * exp(q1) * (1 + exp(prox(q2, lambda)))^2) /
+      ((1 + exp(q1)) * ((1 + exp(prox(q2, lambda)))^2 + lambda * exp(prox(q2, lambda))))
+  }
+  adaptIntegrate(function3, 
+                 lowerLimit = c(-Inf, -Inf), 
+                 upperLimit = c(+Inf, +Inf)) + kapp - 1
 }
 
 #' @importFrom nleqslv nleqslv
 solve_equations <- function(kappa, gamma) {
-  xstart <- c() #what should be the starting point here ?
-  solution <- nleqslv(xstart, calculate_values)$x #control options
-  alpha <- solution[1]
-  sigma <- solution[2]
-  lambda <- solution[3]
-  list(alpha = alpha, sigma = sigma, lambda = lambda)
+  solve <- function(alpha, sigma, lambda) {
+    xstart <- c(1.1678, 3.3466, 0.9605) #what should be the starting point here ?
+    solution <- nleqslv(xstart, calculate_values)$x #control options
+    alpha <- solution[1]
+    sigma <- solution[2]
+    lambda <- solution[3]
+    list(alpha = alpha, sigma = sigma, lambda = lambda)
+  }
+  solve()
 }
 
 get_gamma_estimator <- function(X, Y, estimate_gamma) {
