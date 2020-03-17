@@ -18,7 +18,7 @@ reg_log_hd <- function(X, Y, estimate_gamma = FALSE) {
   gamma <- get_gamma_estimator(X, Y, estimate_gamma)
   solution <-  solve_equations(n_variables/n_observations, gamma)
   
-  as_estimator(get_mle_estimator(Y, X, n_variables), 
+  get_as_estimator(get_mle_estimator(Y, X, n_variables), 
                calculate_c_os(n_observations, n_variables, gamma, 
                               solution[[1]], solution[[2]]))
 }

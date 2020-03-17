@@ -127,7 +127,7 @@ integral_2 <- function(alpha, sigma, lambda, kappa, gamma) {
   }
 }
 
-integral_3 <- function(q, alpha, sigma, lambda, kappa, gamma) {
+integral_3 <- function(alpha, sigma, lambda, kappa, gamma) {
     function(q) {
       calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
         (2 * exp(q[1]) * (1 + exp(prox(q[2], lambda))) ^ 2) /
