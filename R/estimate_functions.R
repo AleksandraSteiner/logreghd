@@ -94,8 +94,8 @@ estimate_gamma <- function(kappa_hat) {
 #two-dimensional density
 calculate_Q_density <- function(q1, q2, alpha, gamma, kappa, sigma) {
   exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
-       - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) 
-  / (2 * pi * sigma * sqrt(kappa))
+       - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
+    (2 * pi * sigma * sqrt(kappa))
 }
 
 prox <- function(z, lambda) {
@@ -114,7 +114,7 @@ prox <- function(z, lambda) {
 }
 
 integral_1 <- function(alpha, sigma, lambda, kappa, gamma) {
-  i1 <- function(q) {
+  function(q) {
     calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
       ((2 * lambda ^ 2 * exp(q[1]) * exp(2 * prox(q[2], lambda))) /
          ((1 + exp(q[1])) * (1 + exp(prox(q[2], lambda))) ^ 2 * kappa ^ 2)) - sigma ^ 2
@@ -179,8 +179,8 @@ get_mle_estimator <- function(Y, X, n_variables) {
 calculate_c_os <- function(n_observations, n_variables, gamma, 
                            alpha_star = 1.1678, sigma_star = 3.3466) {
   numerator <- n_observations * gamma * alpha_star
-  denominator <- (sigma_star ^ 2) * n_variables 
-  + n_observations * gamma * (alpha_star ^ 2)
+  denominator <- (sigma_star ^ 2) * n_variables + 
+    n_observations * gamma * (alpha_star ^ 2)
   numerator / denominator
 }
 
