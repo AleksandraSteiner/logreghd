@@ -66,7 +66,6 @@ find_boundary <- function(kappa_grid, pi_grid) {
     stop("No kappa estimate exists, try with a finer grid")  } 
 }
 
-#' @importFrom stats approx
 estimate_kappa <- function(X, Y, n_rep = 10, 
                            n_kappa = 50, 
                            kappa_method = "random") {
@@ -85,7 +84,6 @@ estimate_kappa <- function(X, Y, n_rep = 10,
   #interpolation solution for kappa_hat (x)
 }
 
-#' @importFrom R.matlab readMat
 estimate_gamma <- function(kappa_hat) {
   kappa <- kappa_gamma_data[,1] == round(kappa_hat, digits = 3) #round/floor ?
   kappa_gamma_data[kappa, 2]
