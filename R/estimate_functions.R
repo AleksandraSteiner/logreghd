@@ -90,24 +90,21 @@ estimate_gamma <- function(kappa_hat) {
 }
 
 #two-dimensional density
-calculate_Q_density <- function(q1, q2, alpha, gamma, kappa, sigma) {
+calculate_Q_density <- function(q1, q2, alpha, sigma, kappa, gamma) {
   exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
        - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
     (2 * pi * sigma * sqrt(kappa))
 }
 
 prox <- function(z, lambda) {
-  
   der <- function(t, z1 = z, lambda1 = lambda) {
     lambda1 * exp(t) / (1 + exp(t)) + t - z1
   }
-  
   derivative <- function(t) {
     xstart <- 1
     solution <- nleqslv(xstart, der)$x 
     solution[1]
   }
-  
   derivative()
 }
 
@@ -128,25 +125,26 @@ integral_2 <- function(alpha, sigma, lambda, kappa, gamma) {
 }
 
 integral_3 <- function(alpha, sigma, lambda, kappa, gamma) {
-    function(q) {
-      calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
-        (2 * exp(q[1]) * (1 + exp(prox(q[2], lambda))) ^ 2) /
-        ((1 + exp(q[1])) * ((1 + exp(prox(q[2], lambda))) ^ 2 
-                            + lambda * exp(prox(q[2], lambda)))) + kappa - 1
-    }
+  function(q) {
+    calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
+      (2 * exp(q[1]) * (1 + exp(prox(q[2], lambda))) ^ 2) /
+      ((1 + exp(q[1])) * ((1 + exp(prox(q[2], lambda))) ^ 2 
+                          + lambda * exp(prox(q[2], lambda)))) + kappa - 1
+  }
 }
 
 #' @importFrom cubature adaptIntegrate
 calculate_integral <- function(alpha, sigma, lambda, kappa, gamma, integral) {
-  adaptIntegrate(integral, c(-Inf, -Inf), c(+Inf, +Inf))
+  adaptIntegrate(integral, c(-Inf, -Inf), c(+Inf, +Inf))[[1]]
 }
 
 system_values <- function(kappa, gamma) {
-  function(alpha, sigma, lambda) {
-    c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1),
-      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2),
-      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3))
+  expected_values <- function(alpha, sigma, lambda) {
+    c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1()),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2()),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3()))
   }
+  expected_values()
 }
 
 #' @importFrom nleqslv nleqslv
@@ -160,7 +158,7 @@ solve_equations <- function(kappa, gamma) {
 
 get_gamma_estimator <- function(X, Y, estimate_gamma) {
   if(estimate_gamma == FALSE) {
-    gamma <- 5
+    gamma <- sqrt(5)
   }
   else {
     stop("not implemented yet")
