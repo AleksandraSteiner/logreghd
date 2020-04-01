@@ -85,15 +85,17 @@ estimate_kappa <- function(X, Y, n_rep = 10,
 }
 
 estimate_gamma <- function(kappa_hat) {
-  kappa <- kappa_gamma_data[,1] == round(kappa_hat, digits = 3) #round/floor ?
+  kappa <- kappa_gamma_data[, 1] == round(kappa_hat, digits = 3) #round/floor ?
   kappa_gamma_data[kappa, 2]
 }
 
 #two-dimensional density
-calculate_Q_density <- function(q1, q2, alpha, sigma, kappa, gamma) {
+calculate_Q_density <- function(alpha, sigma, kappa, gamma) {
+  density <- function(q1, q2) {
   exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
        - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
     (2 * pi * sigma * sqrt(kappa))
+  }
 }
 
 prox <- function(z, lambda) {
