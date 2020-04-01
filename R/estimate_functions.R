@@ -89,12 +89,11 @@ estimate_gamma <- function(kappa_hat) {
   kappa_gamma_data[kappa, 2]
 }
 
-#two-dimensional density
 calculate_Q_density <- function(alpha, sigma, kappa, gamma) {
   function(q1, q2) {
-  exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
-       - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
-    (2 * pi * sigma * sqrt(kappa))
+    exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
+         - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
+      (2 * pi * sigma * sqrt(kappa))
   }
 }
 
@@ -112,7 +111,7 @@ prox <- function(z, lambda) {
 
 integral_1 <- function(alpha, sigma, lambda, kappa, gamma) {
   function(q) {
-    calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
+    calculate_Q_density(alpha, gamma, kappa, sigma) *
       ((2 * lambda ^ 2 * exp(q[1]) * exp(2 * prox(q[2], lambda))) /
          ((1 + exp(q[1])) * (1 + exp(prox(q[2], lambda))) ^ 2 * kappa ^ 2)) - sigma ^ 2
   }
@@ -120,7 +119,7 @@ integral_1 <- function(alpha, sigma, lambda, kappa, gamma) {
 
 integral_2 <- function(alpha, sigma, lambda, kappa, gamma) {
   function(q) {
-    calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
+    calculate_Q_density(alpha, gamma, kappa, sigma) *
       (lambda * q[1] * exp(q[1]) * exp(prox(q[2], lambda))) /
       ((1 + exp(q[1])) * (1 + exp(prox(q[2], lambda))))
   }
@@ -128,7 +127,7 @@ integral_2 <- function(alpha, sigma, lambda, kappa, gamma) {
 
 integral_3 <- function(alpha, sigma, lambda, kappa, gamma) {
   function(q) {
-    calculate_Q_density(q[1], q[2], alpha, gamma, kappa, sigma) *
+    calculate_Q_density(alpha, gamma, kappa, sigma) *
       (2 * exp(q[1]) * (1 + exp(prox(q[2], lambda))) ^ 2) /
       ((1 + exp(q[1])) * ((1 + exp(prox(q[2], lambda))) ^ 2 
                           + lambda * exp(prox(q[2], lambda)))) + kappa - 1
@@ -141,12 +140,11 @@ calculate_integral <- function(alpha, sigma, lambda, kappa, gamma, integral) {
 }
 
 system_values <- function(kappa, gamma) {
-  expected_values <- function(alpha, sigma, lambda) {
+  function(alpha, sigma, lambda) {
     c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1),
       calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2),
       calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3))
   }
-  expected_values()
 }
 
 #' @importFrom nleqslv nleqslv
