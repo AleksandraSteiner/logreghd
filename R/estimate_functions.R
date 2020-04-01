@@ -140,9 +140,9 @@ calculate_integral <- function(alpha, sigma, lambda, kappa, gamma, integral) {
 
 system_values <- function(kappa, gamma) {
   expected_values <- function(alpha, sigma, lambda) {
-    c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1()),
-      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2()),
-      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3()))
+    c(calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_1),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_2),
+      calculate_integral(alpha, sigma, lambda, kappa, gamma, integral_3))
   }
   expected_values()
 }
