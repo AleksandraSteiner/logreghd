@@ -91,7 +91,7 @@ estimate_gamma <- function(kappa_hat) {
 
 #two-dimensional density
 calculate_Q_density <- function(alpha, sigma, kappa, gamma) {
-  density <- function(q1, q2) {
+  function(q1, q2) {
   exp((-q1 ^ 2 * ( (alpha * gamma) ^ 2 + kappa * sigma ^ 2)  
        - 2 * q1 * q2 * alpha * gamma ^ 2 - q2 ^ 2 * gamma ^ 2) / 2 * kappa * sigma ^ 2) /
     (2 * pi * sigma * sqrt(kappa))
