@@ -81,7 +81,7 @@ estimate_gamma <- function(kappa_hat) {
   kappa_gamma_data[kappa, 2]
 }
 
-calculate_Q_density <- function(alpha, sigma, lambda, kappa, gamma = sqrt(5)) {
+calculate_Q_density <- function(alpha, sigma, kappa, gamma = sqrt(5)) {
   sigma_1 = gamma
   sigma_2 = sqrt(alpha ^ 2 * gamma ^ 2 + kappa * sigma ^ 2)
   rho = -alpha * gamma ^ 2
